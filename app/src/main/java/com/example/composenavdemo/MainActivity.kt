@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.composenavdemo.ui.screens.AdaptiveScreen
 import com.example.composenavdemo.ui.theme.ComposeNavDemoTheme
+import androidx.navigation.compose.rememberNavController
+import com.example.composenavdemo.navigation.AirSenseNavGraph
 
 /**
  * Actividad principal que demuestra adaptabilidad en Jetpack Compose
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AdaptiveScreen()
+                    val navController = rememberNavController()
+                    AirSenseNavGraph(navController = navController)
                 }
             }
         }
