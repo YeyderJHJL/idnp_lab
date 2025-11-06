@@ -4,9 +4,18 @@ package com.example.composenavdemo.navigation
  * Rutas de navegación de AirSense
  */
 sealed class AirSenseScreen(val route: String) {
-    // Autenticación
+    // Menú de prácticas
+    object PracticeMenu : AirSenseScreen("practice_menu")
+
+    // PRÁCTICA 2: Adaptabilidad
+    object Adaptive : AirSenseScreen("adaptive")
+
+    // PRÁCTICA 3: Autenticación y Formularios
     object Login : AirSenseScreen("login")
     object Register : AirSenseScreen("register")
+
+    // PRÁCTICA 4: Animaciones
+    object Animation : AirSenseScreen("animation")
 
     // Pantallas principales
     object Dashboard : AirSenseScreen("dashboard")

@@ -1,24 +1,16 @@
 package com.example.composenavdemo.navigation
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.composenavdemo.ui.screens.*
-
-// Asumo que estos colores están definidos en tu archivo de tema (p. ej. ui/theme/Color.kt)
-// import com.example.composenavdemo.ui.theme.AirSenseDarkText
-// import com.example.composenavdemo.ui.theme.AirSenseLightText
-// import com.example.composenavdemo.ui.theme.AirSenseMint
 
 /**
  * Grafo de navegación completo de AirSense
@@ -77,22 +69,12 @@ fun AirSenseNavGraph(navController: NavHostController) {
             )
         }
 
-        // --- INICIO: Bloque añadido ---
-        // Pantalla de Detalles de Estación (faltaba este bloque)
-        composable(
-            route = AirSenseScreen.StationDetails.route,
-            arguments = listOf(navArgument("stationId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            // Extraer el stationId de los argumentos de la ruta
-            val stationId = backStackEntry.arguments?.getString("stationId")
-            // TODO: Implementar StationDetailsScreen y pasar el stationId
-            PlaceholderScreen(
-                title = "Detalles de Estación",
-                description = "Mostrando detalles para la estación: $stationId",
-                onBack = { navController.popBackStack() }
+        // PRÁCTICA 4: Pantalla de Animaciones
+        composable(route = AirSenseScreen.Animation.route) {
+            AnimationScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
-        // --- FIN: Bloque añadido ---
 
         // Pantalla de Dispositivos (próximamente)
         composable(route = AirSenseScreen.Devices.route) {
@@ -100,7 +82,10 @@ fun AirSenseNavGraph(navController: NavHostController) {
             PlaceholderScreen(
                 title = "Dispositivos",
                 description = "Lista de Air Purifier y Smart Air Monitor",
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToAnimation = {
+                    navController.navigate(AirSenseScreen.Animation.route)
+                }
             )
         }
 
@@ -110,7 +95,10 @@ fun AirSenseNavGraph(navController: NavHostController) {
             PlaceholderScreen(
                 title = "Perfil",
                 description = "Configuración de usuario",
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigateToAnimation = {
+                    navController.navigate(AirSenseScreen.Animation.route)
+                }
             )
         }
     }
@@ -124,50 +112,60 @@ fun AirSenseNavGraph(navController: NavHostController) {
 private fun PlaceholderScreen(
     title: String,
     description: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToAnimation: () -> Unit = {}
 ) {
-    Scaffold(
+    androidx.compose.material3.Scaffold(
         topBar = {
-            // Se usa TopAppBar del paquete material3 (no el obsoleto)
-            TopAppBar(
-                title = { Text(title) },
+            androidx.compose.material3.TopAppBar(
+                title = { androidx.compose.material3.Text(title) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
+                    androidx.compose.material3.IconButton(onClick = onBack) {
+                        androidx.compose.material3.Icon(
+                            androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack,
+                            "Volver"
                         )
                     }
                 },
-                // Asumo que 'AirSenseMint' está definido en tu tema
-                // colors = TopAppBarDefaults.topAppBarColors(
-                //     containerColor = AirSenseMint
-                // )
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = AirSenseMint
+                )
             )
         }
     ) { padding ->
-        Box(
-            modifier = Modifier
+        androidx.compose.foundation.layout.Box(
+            modifier = androidx.compose.ui.Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.Center
+            contentAlignment = androidx.compose.ui.Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            androidx.compose.foundation.layout.Column(
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
             ) {
-                Text(
+                androidx.compose.material3.Text(
                     text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    // color = AirSenseDarkText
+                    style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                    color = AirSenseDarkText
                 )
-                Spacer(
-                    modifier = Modifier.height(16.dp)
+                androidx.compose.foundation.layout.Spacer(
+                    modifier = androidx.compose.ui.Modifier.height(16.dp)
                 )
-                Text(
+                androidx.compose.material3.Text(
                     text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    // color = AirSenseLightText
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    color = AirSenseLightText
                 )
+                androidx.compose.foundation.layout.Spacer(
+                    modifier = androidx.compose.ui.Modifier.height(32.dp)
+                )
+                androidx.compose.material3.Button(
+                    onClick = onNavigateToAnimation,
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = AirSenseMint
+                    )
+                ) {
+                    androidx.compose.material3.Text("Ver Práctica de Animaciones")
+                }
             }
         }
     }
