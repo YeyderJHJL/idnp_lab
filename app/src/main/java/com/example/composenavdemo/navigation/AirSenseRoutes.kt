@@ -17,6 +17,9 @@ sealed class AirSenseScreen(val route: String) {
     // PRÁCTICA 4: Animaciones
     object Animation : AirSenseScreen("animation")
 
+    // PRÁCTICA 5: Listas Dinámicas
+    object StationsList : AirSenseScreen("stations_list")
+
     // Pantallas principales
     object Dashboard : AirSenseScreen("dashboard")
     object StationDetails : AirSenseScreen("station_details/{stationId}") {

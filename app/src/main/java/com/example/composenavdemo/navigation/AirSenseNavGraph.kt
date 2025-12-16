@@ -1,16 +1,22 @@
 package com.example.composenavdemo.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.composenavdemo.ui.screens.*
+// import com.example.composenavdemo.ui.theme.AirSenseDarkText
+// import com.example.composenavdemo.ui.theme.AirSenseLightText
+// import com.example.composenavdemo.ui.theme.AirSenseMint
 
 /**
  * Grafo de navegación completo de AirSense
@@ -60,6 +66,10 @@ fun AirSenseNavGraph(navController: NavHostController) {
                         AirSenseScreen.StationDetails.createRoute(stationId)
                     )
                 },
+                // Añade el nuevo callback para navegar a la lista
+                onNavigateToStationsList = {
+                    navController.navigate(AirSenseScreen.StationsList.route)
+                },
                 onNavigateToDevices = {
                     navController.navigate(AirSenseScreen.Devices.route)
                 },
@@ -98,6 +108,22 @@ fun AirSenseNavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() },
                 onNavigateToAnimation = {
                     navController.navigate(AirSenseScreen.Animation.route)
+                }
+            )
+        }
+
+        // PRÁCTICA 5: LISTA DE ESTACIONES
+        composable(route = AirSenseScreen.StationsList.route) {
+            StationsListScreen(
+                onNavigateBack = {
+                    // Acción para volver a la pantalla anterior (Dashboard)
+                    navController.popBackStack()
+                },
+                onStationClick = { station ->
+                    // Navegar a la pantalla de detalles usando el ID de la estación
+                    navController.navigate(
+                        AirSenseScreen.StationDetails.createRoute(station.id)
+                    )
                 }
             )
         }

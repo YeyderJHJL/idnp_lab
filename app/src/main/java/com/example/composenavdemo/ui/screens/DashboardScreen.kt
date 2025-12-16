@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Cloud
 @Composable
 fun DashboardScreen(
     onNavigateToStationDetails: (String) -> Unit = {},
+    onNavigateToStationsList: () -> Unit = {},
     onNavigateToDevices: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
@@ -177,7 +178,7 @@ fun DashboardScreen(
                     fontWeight = FontWeight.Bold,
                     color = AirSenseDarkText
                 )
-                TextButton(onClick = { /* Ver más */ }) {
+                TextButton(onClick = onNavigateToStationsList) {
                     Text("Ver más", color = AirSenseMint)
                 }
             }
