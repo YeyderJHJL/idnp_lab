@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.composenavdemo.data.preferences.PreferencesManager
 
 // Esquema de colores para modo oscuro
 private val DarkColorScheme = darkColorScheme(
@@ -48,10 +49,10 @@ private val DarkColorScheme = darkColorScheme(
 
 // Esquema de colores para modo claro
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1976D2),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD1E4FF),
-    onPrimaryContainer = Color(0xFF001D36),
+    primary = AirSenseMint, // Color primario personalizado
+    onPrimary = Color.White, // Color del texto sobre el primario
+    primaryContainer = Color(0xFFB2DFDB), // Un tono más claro de menta para contenedores
+    onPrimaryContainer = Color(0xFF004D40), // Texto oscuro para el contenedor primario
 
     secondary = Color(0xFF388E3C),
     onSecondary = Color(0xFFFFFFFF),
@@ -77,21 +78,27 @@ private val LightColorScheme = lightColorScheme(
 )
 
 /**
- * Tema de la aplicación que soporta:
- * - Modo claro y oscuro automático
- * - Colores dinámicos en Android 12+ (Material You)
- * - Tipografía escalable según accesibilidad
+ * Tema de la aplicación con soporte para preferencias de DataStore
  *
- * @param darkTheme Indica si se debe usar el tema oscuro (por defecto usa la configuración del sistema)
- * @param dynamicColor Habilita colores dinámicos en Android 12+ (por defecto true)
+ * @param themeMode Modo de tema desde DataStore (LIGHT, DARK, SYSTEM)
+ * @param dynamicColor Habilita colores dinámicos en Android 12+
  * @param content Contenido de la aplicación
  */
 @Composable
 fun ComposeNavDemoTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: PreferencesManager.ThemeMode = PreferencesManager.ThemeMode.SYSTEM,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val systemInDarkTheme = isSystemInDarkTheme()
+
+    // Determinar si usar tema oscuro basado en preferencia del usuario
+    val darkTheme = when (themeMode) {
+        PreferencesManager.ThemeMode.LIGHT -> false
+        PreferencesManager.ThemeMode.DARK -> true
+        PreferencesManager.ThemeMode.SYSTEM -> systemInDarkTheme
+    }
+
     val colorScheme = when {
         // En Android 12+ (API 31+), usar colores dinámicos si está habilitado
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

@@ -46,9 +46,11 @@ fun AnimationScreen(
         label = "scale_animation"
     )
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+
     // Animación del color
     val color by animateColorAsState(
-        targetValue = if (isExpanded) Color(0xFFFF6B6B) else AirSenseMint,
+        targetValue = if (isExpanded) Color(0xFFFF6B6B) else primaryColor,
         animationSpec = tween(
             durationMillis = 500,
             easing = LinearOutSlowInEasing
@@ -81,9 +83,9 @@ fun AnimationScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AirSenseMint,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -91,7 +93,7 @@ fun AnimationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -106,7 +108,7 @@ fun AnimationScreen(
                     text = "Demostración de Animaciones",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AirSenseDarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -114,7 +116,7 @@ fun AnimationScreen(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 2.dp
                 ) {
                     Column(
@@ -181,7 +183,7 @@ fun AnimationScreen(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = AirSenseMint
+                        containerColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(28.dp)
                 ) {
@@ -189,7 +191,7 @@ fun AnimationScreen(
                         text = if (isExpanded) "Contraer Círculo" else "Expandir Círculo",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
@@ -202,7 +204,7 @@ fun AnimationScreen(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = AirSenseMint
+                        contentColor = MaterialTheme.colorScheme.primary
                     ),
                     shape = RoundedCornerShape(28.dp)
                 ) {
@@ -220,7 +222,7 @@ fun AnimationScreen(
                     text = "Presiona el botón para animar el círculo.\n" +
                             "Observa cómo cambia el tamaño, color y rotación.",
                     fontSize = 12.sp,
-                    color = AirSenseLightText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
@@ -247,13 +249,13 @@ private fun AnimationInfoRow(
             text = label,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = AirSenseDarkText
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = value,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = AirSenseMint
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

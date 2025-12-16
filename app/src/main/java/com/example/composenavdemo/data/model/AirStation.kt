@@ -115,6 +115,15 @@ object AirStationDataSource {
     }
 
     /**
+     * Busca y devuelve una estación por su ID.
+     * @param id El ID de la estación a buscar.
+     * @return La [AirStation] si se encuentra, o null si no.
+     */
+    fun getStationById(id: String): AirStation? {
+        return generateStations().find { it.id == id }
+    }
+
+    /**
      * Genera colores variados para los avatares
      */
     private fun generateAvatarColor(index: Int): Long {

@@ -32,4 +32,5 @@ sealed class AirSenseScreen(val route: String) {
     object AddDevice : AirSenseScreen("add_device")
     object WiFiSetup : AirSenseScreen("wifi_setup")
     object Profile : AirSenseScreen("profile")
+    object Settings : AirSenseScreen("settings")
 }

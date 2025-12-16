@@ -4,13 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
-import com.example.composenavdemo.ui.theme.ComposeNavDemoTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.example.composenavdemo.data.preferences.PreferencesManager
 import com.example.composenavdemo.navigation.AirSenseNavGraph
+import com.example.composenavdemo.ui.theme.ComposeNavDemoTheme
+import com.example.composenavdemo.utils.NotificationUtils
 
 /**
  * Actividad principal que demuestra adaptabilidad en Jetpack Compose
@@ -22,16 +24,24 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Crear canal de notificaciones
+        NotificationUtils.createNotificationChannel(this)
+
         setContent {
-            // El tema se adapta automáticamente al modo del sistema
-            ComposeNavDemoTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val navController = rememberNavController()
-                    AirSenseNavGraph(navController = navController)
-                }
+            val context = LocalContext.current
+            val preferencesManager = remember { PreferencesManager(context) }
+            val themeMode by preferencesManager.themeMode.collectAsState(initial = PreferencesManager.ThemeMode.SYSTEM)
+            val dynamicColor by preferencesManager.dynamicColor.collectAsState(initial = true)
+
+            ComposeNavDemoTheme(
+                themeMode = themeMode,
+                dynamicColor = dynamicColor
+            ) {
+                val navController = rememberNavController()
+                // Al colocar NavGraph directamente aquí, nos aseguramos de que
+                // TODAS las pantallas (incluyendo Login/Register) hereden el tema.
+                AirSenseNavGraph(navController = navController)
             }
         }
     }

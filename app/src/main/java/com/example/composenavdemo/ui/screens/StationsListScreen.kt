@@ -76,7 +76,7 @@ fun StationsListScreen(
                         Text(
                             text = "${filteredStations.size} estaciones encontradas",
                             fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
                         )
                     }
                 },
@@ -85,7 +85,7 @@ fun StationsListScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
@@ -94,20 +94,20 @@ fun StationsListScreen(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = "Buscar",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     IconButton(onClick = { /* TODO: Filtros */ }) {
                         Icon(
                             Icons.Default.FilterList,
                             contentDescription = "Filtrar",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AirSenseMint,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -115,7 +115,7 @@ fun StationsListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
             // Barra de búsqueda
@@ -182,10 +182,10 @@ private fun SearchBar(
         singleLine = true,
         shape = RoundedCornerShape(28.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = AirSenseMint,
-            unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
         )
     )
 }
@@ -212,8 +212,8 @@ private fun FilterChips(
                 onClick = { onFilterSelected(filter) },
                 label = { Text(filter) },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AirSenseMint,
-                    selectedLabelColor = Color.White
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -234,7 +234,7 @@ private fun StationListItem(
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -255,7 +255,7 @@ private fun StationListItem(
                     text = station.name.take(2).uppercase(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White // Assuming avatar colors are dark enough for white text
                 )
             }
 
@@ -270,7 +270,7 @@ private fun StationListItem(
                     text = station.id,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = AirSenseMint
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -280,7 +280,7 @@ private fun StationListItem(
                     text = station.name,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AirSenseDarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -291,7 +291,7 @@ private fun StationListItem(
                 Text(
                     text = station.location,
                     fontSize = 13.sp,
-                    color = AirSenseLightText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -355,14 +355,14 @@ private fun EmptyState(
                 text = message,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
-                color = AirSenseDarkText
+                color = MaterialTheme.colorScheme.onSurface
             )
             if (searchQuery.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Intenta con otra búsqueda",
                     fontSize = 14.sp,
-                    color = AirSenseLightText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

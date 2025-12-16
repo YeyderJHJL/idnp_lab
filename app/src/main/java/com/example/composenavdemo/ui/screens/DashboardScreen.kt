@@ -1,5 +1,9 @@
 package com.example.composenavdemo.ui.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.filled.Cloud
+import com.example.composenavdemo.data.model.AirStationDataSource
+import com.example.composenavdemo.utils.NotificationUtils
 
 /**
  * Pantalla principal (Dashboard) de AirSense
@@ -28,9 +34,24 @@ fun DashboardScreen(
     onNavigateToStationDetails: (String) -> Unit = {},
     onNavigateToStationsList: () -> Unit = {},
     onNavigateToDevices: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var selectedTab by remember { mutableIntStateOf(0) }
+
+    // Cargar datos reales desde el DataSource
+    val stations = remember { AirStationDataSource.generateStations() }
+    val mainStation = stations.firstOrNull() // Usar la primera estación para el dashboard
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                NotificationUtils.showTestNotification(context)
+            }
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -40,12 +61,10 @@ fun DashboardScreen(
                         Text(
                             text = "Bienvenido",
                             fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.8f)
                         )
                         Text(
                             text = "Comprueba la calidad del aire hoy.",
                             fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.6f)
                         )
                     }
                 },
@@ -54,78 +73,62 @@ fun DashboardScreen(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = "Buscar",
-                            tint = Color.White
+                        )
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Configuración",
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AirSenseMint
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
-                contentColor = AirSenseMint
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, "Home") },
-                    label = { Text("Home") },
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.LocationOn, "Ubicaciones") },
-                    label = { Text("Ubicaciones") },
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 }
-                )
-                NavigationBarItem(
-                    icon = {
-                        Box(
-                            modifier = Modifier
-                                .size(56.dp)
-                                .offset(y = (-16).dp)
-                                .clip(CircleShape)
-                                .background(AirSenseMint)
-                                .clickable { onNavigateToDevices() },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Add,
-                                "Agregar",
-                                tint = Color.White,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
-                    },
-                    label = { },
-                    selected = false,
-                    onClick = { onNavigateToDevices() }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Notifications, "Notificaciones") },
-                    label = { Text("Alertas") },
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, "Configuración") },
-                    label = { Text("Ajustes") },
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3; onNavigateToProfile() }
-                )
+            val items = listOf(
+                "Inicio" to Icons.Filled.Home,
+                "Estaciones" to Icons.Filled.List,
+                "Dispositivos" to Icons.Filled.Sensors,
+                "Perfil" to Icons.Filled.Person
+            )
+            val actions = listOf(
+                {}, // No action for home, we are here
+                onNavigateToStationsList,
+                onNavigateToDevices,
+                onNavigateToProfile
+            )
+
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedTab == index,
+                        onClick = {
+                            if (selectedTab != index) {
+                                selectedTab = index
+                                actions[index].invoke()
+                            }
+                        },
+                        icon = { Icon(imageVector = item.second, contentDescription = item.first) },
+                        label = { Text(item.first) }
+                    )
+                }
             }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            // Ubicación actual
+            // Ubicación actual y fecha
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -135,34 +138,37 @@ fun DashboardScreen(
                     Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = AirSenseMint,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Arequipa, Cercado",
+                        text = mainStation?.location ?: "Ubicación no disponible",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = AirSenseDarkText
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
                 Text(
-                    text = "Jueves, 10:00 a.m",
+                    text = "Jueves, 10:00 a.m", // Dato ficticio
                     fontSize = 12.sp,
-                    color = AirSenseLightText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Card principal de calidad del aire
-            AirQualityCard(
-                aqi = 47,
-                quality = "BIEN",
-                temperature = "31°C",
-                description = "Parcialmente nublado",
-                onClick = { onNavigateToStationDetails("station_1") }
-            )
+            // Card principal de calidad del aire (con datos reales)
+            if (mainStation != null) {
+                AirQualityCard(
+                    aqi = mainStation.aqi,
+                    quality = mainStation.status.label,
+                    statusColor = Color(mainStation.status.color),
+                    temperature = "25°C", // Dato ficticio
+                    description = "Parcialmente nublado", // Dato ficticio
+                    onClick = { onNavigateToStationDetails(mainStation.id) }
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -173,13 +179,13 @@ fun DashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "ESTACIÓN DNI 1 (Rotonda HI)",
+                    text = mainStation?.name ?: "Estación no disponible",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AirSenseDarkText
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 TextButton(onClick = onNavigateToStationsList) {
-                    Text("Ver más", color = AirSenseMint)
+                    Text("Ver más", color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -188,19 +194,32 @@ fun DashboardScreen(
             Text(
                 text = "Calidad del aire",
                 fontSize = 12.sp,
-                color = AirSenseLightText
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Métricas de contaminantes
+            // Métricas de contaminantes (datos ficticios)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
                 PollutantCard("PM2.5", "29", "μg/m³", Color(0xFF81C784))
                 PollutantCard("PM10", "45", "μg/m³", Color(0xFFFFB74D))
                 PollutantCard("NO2", "12", "μg/m³", Color(0xFF64B5F6))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón de prueba para notificaciones
+            Button(onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    NotificationUtils.showTestNotification(context)
+                }
+            }) {
+                Text("Probar Notificación")
             }
         }
     }
@@ -213,6 +232,7 @@ fun DashboardScreen(
 private fun AirQualityCard(
     aqi: Int,
     quality: String,
+    statusColor: Color,
     temperature: String,
     description: String,
     onClick: () -> Unit
@@ -222,7 +242,7 @@ private fun AirQualityCard(
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp
     ) {
         Row(
@@ -240,20 +260,20 @@ private fun AirQualityCard(
                     text = quality,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF81C784)
+                    color = statusColor
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = aqi.toString(),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AirSenseDarkText
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "AQI",
                     fontSize = 14.sp,
-                    color = AirSenseLightText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -265,7 +285,7 @@ private fun AirQualityCard(
                     Icon(
                         Icons.Default.Cloud,
                         contentDescription = null,
-                        tint = Color(0xFFFFB74D),
+                        tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -273,14 +293,14 @@ private fun AirQualityCard(
                         text = temperature,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = AirSenseDarkText
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = description,
                     fontSize = 12.sp,
-                    color = AirSenseLightText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -302,7 +322,7 @@ private fun PollutantCard(
             .width(110.dp)
             .height(100.dp),
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp
     ) {
         Column(
@@ -315,7 +335,7 @@ private fun PollutantCard(
                 text = name,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = AirSenseLightText
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Column {
@@ -328,7 +348,7 @@ private fun PollutantCard(
                 Text(
                     text = unit,
                     fontSize = 10.sp,
-                    color = AirSenseLightText
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

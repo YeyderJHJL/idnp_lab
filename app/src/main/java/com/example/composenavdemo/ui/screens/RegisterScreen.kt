@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.sp
 /**
  * Pantalla de Register de AirSense
  * Demuestra el uso avanzado de Column, Row y espaciado
+ * CORREGIDO: Usa MaterialTheme.colorScheme para adaptarse a temas claro/oscuro.
  */
 @Composable
 fun RegisterScreen(
@@ -30,10 +32,11 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // El fondo principal usa el color primario del tema
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AirSenseMint)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -51,7 +54,7 @@ fun RegisterScreen(
                 text = "AirSense",
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary, // Color de texto sobre primario
                 letterSpacing = 2.sp
             )
 
@@ -59,9 +62,9 @@ fun RegisterScreen(
 
             // Descripción
             Text(
-                text = "Visualiza la calidad del aire\nen tu ciudad",
+                text = "Visualiza la calidad del aire en tu ciudad",
                 fontSize = 16.sp,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary, // Color de texto sobre primario
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
             )
@@ -73,7 +76,7 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface // Color de fondo de la superficie
         ) {
             Column(
                 modifier = Modifier
@@ -86,7 +89,7 @@ fun RegisterScreen(
                     text = "Register now",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = AirSenseDarkText
+                    color = MaterialTheme.colorScheme.onSurface // Color de texto sobre superficie
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -98,7 +101,7 @@ fun RegisterScreen(
                 ) {
                     Text(
                         text = "Already have an account? ",
-                        color = AirSenseLightText,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Color de texto secundario
                         fontSize = 13.sp
                     )
 
@@ -108,7 +111,7 @@ fun RegisterScreen(
                     ) {
                         Text(
                             text = "get into",
-                            color = AirSenseMint,
+                            color = MaterialTheme.colorScheme.primary, // Color primario para el enlace
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -162,7 +165,7 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = AirSenseMint
+                        containerColor = MaterialTheme.colorScheme.primary // Contenedor con color primario
                     ),
                     shape = RoundedCornerShape(28.dp)
                 ) {
@@ -170,7 +173,7 @@ fun RegisterScreen(
                         text = "Register",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary // Texto sobre primario
                     )
                 }
             }
@@ -180,7 +183,7 @@ fun RegisterScreen(
 
 /**
  * Campo de texto personalizado reutilizable
- * Demuestra componente modular usando Row para layout horizontal
+ * CORREGIDO: Usa MaterialTheme.colorScheme y se adapta a temas.
  */
 @Composable
 private fun CustomTextField(
@@ -196,26 +199,25 @@ private fun CustomTextField(
         placeholder = {
             Text(
                 placeholder,
-                color = AirSenseLightText,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp
             )
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = AirSenseLightMint,
-                shape = RoundedCornerShape(12.dp)
-            ),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+        modifier = Modifier.fillMaxWidth(),
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType
         ),
         colors = OutlinedTextFieldDefaults.colors(
+            // Replicando el estilo "borderless" pero con theme colors
             focusedBorderColor = Color.Transparent,
             unfocusedBorderColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            cursorColor = AirSenseMint
+            // Usando un color de fondo sutil del tema
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
         ),
         singleLine = true,
         shape = RoundedCornerShape(12.dp)
