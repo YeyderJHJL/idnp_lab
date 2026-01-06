@@ -9,11 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.composenavdemo.AirSenseApplication
-import com.example.composenavdemo.ui.screens.DashboardScreen
-import com.example.composenavdemo.ui.screens.LoginScreen
-import com.example.composenavdemo.ui.screens.RegisterScreen
-import com.example.composenavdemo.ui.screens.StationDetailsScreen
-import com.example.composenavdemo.ui.screens.StationsListScreen
+import com.example.composenavdemo.ui.screens.*
+import com.example.composenavdemo.ui.viewmodel.AddStationViewModel
 import com.example.composenavdemo.ui.viewmodel.StationDetailsViewModel
 import com.example.composenavdemo.ui.viewmodel.StationsListViewModel
 
@@ -56,6 +53,8 @@ fun AirSenseNavGraph(navController: NavHostController) {
                 onStationClick = { stationId ->
                     navController.navigate(AirSenseScreen.StationDetails.createRoute(stationId))
                 },
+                onNavigateToStationsList = { navController.navigate(AirSenseScreen.StationsList.route) },
+                onNavigateToAddStation = { navController.navigate(AirSenseScreen.AddStation.route) },
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -68,6 +67,15 @@ fun AirSenseNavGraph(navController: NavHostController) {
             )
             StationDetailsScreen(
                 viewModel = stationDetailsViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(AirSenseScreen.AddStation.route) {
+            val addStationViewModel: AddStationViewModel = viewModel(
+                factory = AddStationViewModel.provideFactory(repository)
+            )
+            AddStationScreen(
+                viewModel = addStationViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

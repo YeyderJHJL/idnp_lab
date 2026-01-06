@@ -36,4 +36,11 @@ class AirQualityRepository(
     fun getLatestMeasurementForStation(stationId: Long): Flow<AirQualityMeasurementEntity?> {
         return measurementDao.getLatestMeasurement(stationId)
     }
+
+    /**
+     * Inserta una nueva estación de monitoreo en la base de datos.
+     */
+    suspend fun insertStation(station: MonitoringStationEntity) {
+        stationDao.insertStation(station)
+    }
 }

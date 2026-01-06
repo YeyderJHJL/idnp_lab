@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,7 +22,9 @@ import com.example.composenavdemo.ui.viewmodel.StationsListViewModel
 fun StationsListScreen(
     viewModel: StationsListViewModel,
     onStationClick: (Long) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateToAddStation: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToStationsList: () -> Unit // Added for consistency with navGraph, though unused
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -43,6 +46,11 @@ fun StationsListScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onNavigateToAddStation) {
+                Icon(Icons.Default.Add, contentDescription = "Add Station")
+            }
         }
     ) { paddingValues ->
         Box(
@@ -50,8 +58,10 @@ fun StationsListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (uiState.stations.isEmpty()) {
+            if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (uiState.stations.isEmpty()) {
+                Text("No stations found. Tap the + button to add one.", modifier = Modifier.align(Alignment.Center))
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.stations) { station ->

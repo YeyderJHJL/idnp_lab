@@ -26,6 +26,7 @@ sealed class AirSenseScreen(val route: String) {
         // Acepta un Long para el ID de la estación, que es como Room lo maneja.
         fun createRoute(stationId: Long) = "station_details/$stationId"
     }
+    object AddStation : AirSenseScreen("add_station")
     object Devices : AirSenseScreen("devices")
     object DeviceDetails : AirSenseScreen("device_details/{deviceId}") {
         fun createRoute(deviceId: String) = "device_details/$deviceId"
