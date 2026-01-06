@@ -3,7 +3,7 @@ package com.example.composenavdemo.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.composenavdemo.data.database.MonitoringStationEntity
+import com.example.composenavdemo.data.database.StationWithAqi
 import com.example.composenavdemo.data.repository.AirQualityRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,9 +12,10 @@ import kotlinx.coroutines.flow.stateIn
 
 /**
  * Representa el estado de la UI para la pantalla de la lista de estaciones.
+ * Ahora contiene la lista de 'StationWithAqi' para tener la información completa.
  */
 data class StationsListUiState(
-    val stations: List<MonitoringStationEntity> = emptyList(),
+    val stations: List<StationWithAqi> = emptyList(),
     val isLoading: Boolean = true // Por defecto, está cargando hasta que el primer flujo llegue
 )
 
@@ -24,9 +25,10 @@ data class StationsListUiState(
 class StationsListViewModel(repository: AirQualityRepository) : ViewModel() {
 
     // Convierte el Flow de la base de datos en un StateFlow que la UI puede consumir.
-    val uiState: StateFlow<StationsListUiState> = repository.getStations()
-        .map { stations ->
-            StationsListUiState(stations = stations, isLoading = false)
+    // Llama al nuevo método del repositorio para obtener los datos completos.
+    val uiState: StateFlow<StationsListUiState> = repository.getStationsWithAqi()
+        .map { stationsWithAqi ->
+            StationsListUiState(stations = stationsWithAqi, isLoading = false)
         }
         .stateIn(
             scope = viewModelScope,

@@ -4,6 +4,16 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 /**
+ * Clase de datos que combina una estación con su última medición de AQI.
+ * Room utilizará la consulta personalizada para poblar esta clase.
+ */
+data class StationWithAqi(
+    @Embedded
+    val station: MonitoringStationEntity,
+    val aqi: Int? // Puede ser nulo si no hay mediciones para la estación
+)
+
+/**
  * DAO para operaciones de Estaciones de Monitoreo
  *
  * PRÁCTICA 7: Room Database
@@ -11,6 +21,22 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface MonitoringStationDao {
+
+    /**
+     * Obtiene una lista de todas las estaciones junto con su última medición de AQI.
+     * Esta consulta es la base para la nueva interfaz de lista de estaciones.
+     */
+    @Query("""
+        SELECT s.*,
+               (SELECT aqi
+                FROM air_quality_measurements
+                WHERE stationId = s.id
+                ORDER BY timestamp DESC
+                LIMIT 1) as aqi
+        FROM monitoring_stations s
+        ORDER BY s.name ASC
+    """)
+    fun getStationsWithLatestAqi(): Flow<List<StationWithAqi>>
 
     /**
      * Insertar una nueva estación
