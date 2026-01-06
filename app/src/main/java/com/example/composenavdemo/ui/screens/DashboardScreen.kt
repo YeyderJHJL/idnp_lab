@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,7 +32,7 @@ import com.example.composenavdemo.utils.NotificationUtils
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    onNavigateToStationDetails: (String) -> Unit = {},
+    onStationClick: (Long) -> Unit = {},
     onNavigateToStationsList: () -> Unit = {},
     onNavigateToDevices: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
@@ -93,7 +94,7 @@ fun DashboardScreen(
         bottomBar = {
             val items = listOf(
                 "Inicio" to Icons.Filled.Home,
-                "Estaciones" to Icons.Filled.List,
+                "Estaciones" to Icons.AutoMirrored.Filled.List,
                 "Dispositivos" to Icons.Filled.Sensors,
                 "Perfil" to Icons.Filled.Person
             )
@@ -166,7 +167,7 @@ fun DashboardScreen(
                     statusColor = Color(mainStation.status.color),
                     temperature = "25°C", // Dato ficticio
                     description = "Parcialmente nublado", // Dato ficticio
-                    onClick = { onNavigateToStationDetails(mainStation.id) }
+                    onClick = { onStationClick(mainStation.id) }
                 )
             }
 

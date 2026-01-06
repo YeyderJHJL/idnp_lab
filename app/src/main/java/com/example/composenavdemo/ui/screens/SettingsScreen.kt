@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,7 +96,11 @@ fun SettingsScreen(
             }
 
 
-            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = DividerDefaults.Thickness,
+                color = DividerDefaults.color
+            )
 
             // Sección: Notificaciones
             SettingsSection(title = "Notificaciones")
@@ -112,7 +117,11 @@ fun SettingsScreen(
                 }
             )
 
-            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = DividerDefaults.Thickness,
+                color = DividerDefaults.color
+            )
 
             // Sección: Cuenta
             SettingsSection(title = "Cuenta")
@@ -124,7 +133,11 @@ fun SettingsScreen(
                 onClick = { /* TODO: Implementar diálogo para editar nombre */ }
             )
 
-            Divider(modifier = Modifier.padding(horizontal = 16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = DividerDefaults.Thickness,
+                color = DividerDefaults.color
+            )
 
             // Sección: Datos
             SettingsSection(title = "Datos")

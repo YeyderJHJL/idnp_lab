@@ -1,106 +1,39 @@
 package com.example.composenavdemo.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.composenavdemo.data.model.AirStation
-import com.example.composenavdemo.data.model.AirStationDataSource
+import com.example.composenavdemo.ui.viewmodel.StationsListViewModel
 
-/**
- * Pantalla de lista de estaciones de monitoreo
- *
- * PRÁCTICA 5: Listas Dinámicas con LazyColumn
- * - Lista eficiente de 22 registros
- * - 4 elementos por ítem: ID, nombre, ubicación, AQI + avatar
- * - Scroll optimizado
- * - Búsqueda y filtrado
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StationsListScreen(
-    onNavigateBack: () -> Unit = {},
-    onStationClick: (AirStation) -> Unit = {}
+    viewModel: StationsListViewModel,
+    onStationClick: (Long) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
-    // Cargar datos
-    val stations = remember { AirStationDataSource.generateStations() }
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("Todos") }
-
-    // Filtrar estaciones según búsqueda y filtro
-    val filteredStations = remember(searchQuery, selectedFilter, stations) {
-        stations.filter { station ->
-            val matchesSearch = station.name.contains(searchQuery, ignoreCase = true) ||
-                    station.location.contains(searchQuery, ignoreCase = true) ||
-                    station.id.contains(searchQuery, ignoreCase = true)
-
-            val matchesFilter = when (selectedFilter) {
-                "Todos" -> true
-                "Bueno" -> station.aqi <= 50
-                "Moderado" -> station.aqi in 51..100
-                "Dañino" -> station.aqi > 100
-                else -> true
-            }
-
-            matchesSearch && matchesFilter
-        }
-    }
-
-    // Estado del scroll
-    val listState = rememberLazyListState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Column {
-                        Text("Estaciones de Monitoreo")
-                        Text(
-                            text = "${filteredStations.size} estaciones encontradas",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
-                        )
-                    }
-                },
+                title = { Text("Estaciones de Monitoreo") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* TODO: Búsqueda */ }) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Buscar",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    IconButton(onClick = { /* TODO: Filtros */ }) {
-                        Icon(
-                            Icons.Default.FilterList,
-                            contentDescription = "Filtrar",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
@@ -112,258 +45,23 @@ fun StationsListScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
-            // Barra de búsqueda
-            SearchBar(
-                query = searchQuery,
-                onQueryChange = { searchQuery = it }
-            )
-
-            // Chips de filtro
-            FilterChips(
-                selectedFilter = selectedFilter,
-                onFilterSelected = { selectedFilter = it }
-            )
-
-            // Lista de estaciones con LazyColumn
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(
-                    items = filteredStations,
-                    key = { station -> station.id }
-                ) { station ->
-                    StationListItem(
-                        station = station,
-                        onClick = { onStationClick(station) }
-                    )
-                }
-
-                // Mensaje si no hay resultados
-                if (filteredStations.isEmpty()) {
-                    item {
-                        EmptyState(
-                            message = "No se encontraron estaciones",
-                            searchQuery = searchQuery
+            if (uiState.stations.isEmpty()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(uiState.stations) { station ->
+                        ListItem(
+                            headlineContent = { Text(station.name) },
+                            supportingContent = { Text(station.location) },
+                            modifier = Modifier.clickable { onStationClick(station.id) }
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-/**
- * Barra de búsqueda
- */
-@Composable
-private fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        placeholder = { Text("Buscar por nombre, ubicación o ID...") },
-        leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = null)
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(28.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface
-        )
-    )
-}
-
-/**
- * Chips de filtro
- */
-@Composable
-private fun FilterChips(
-    selectedFilter: String,
-    onFilterSelected: (String) -> Unit
-) {
-    val filters = listOf("Todos", "Bueno", "Moderado", "Dañino")
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        filters.forEach { filter ->
-            FilterChip(
-                selected = selectedFilter == filter,
-                onClick = { onFilterSelected(filter) },
-                label = { Text(filter) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    }
-}
-
-/**
- * Item individual de la lista
- * Muestra: ID, Nombre, Ubicación, AQI + Avatar
- */
-@Composable
-private fun StationListItem(
-    station: AirStation,
-    onClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 2.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Avatar con color personalizado
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color(station.avatarColor)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = station.name.take(2).uppercase(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White // Assuming avatar colors are dark enough for white text
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Información de la estación
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // ID de la estación
-                Text(
-                    text = station.id,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Nombre de la estación
-                Text(
-                    text = station.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Ubicación
-                Text(
-                    text = station.location,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Badge de AQI
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color(station.status.color).copy(alpha = 0.2f)
-                ) {
-                    Text(
-                        text = station.aqi.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(station.status.color),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = station.status.label,
-                    fontSize = 10.sp,
-                    color = Color(station.status.color),
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
-}
-
-/**
- * Estado vacío cuando no hay resultados
- */
-@Composable
-private fun EmptyState(
-    message: String,
-    searchQuery: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(48.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "🔍",
-                fontSize = 48.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = message,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (searchQuery.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Intenta con otra búsqueda",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
     }
