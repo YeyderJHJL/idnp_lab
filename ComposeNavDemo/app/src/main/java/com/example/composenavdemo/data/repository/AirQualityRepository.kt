@@ -4,6 +4,7 @@ import com.example.composenavdemo.data.database.AirQualityMeasurementDao
 import com.example.composenavdemo.data.database.MonitoringStationDao
 import com.example.composenavdemo.data.database.AirQualityMeasurementEntity
 import com.example.composenavdemo.data.database.MonitoringStationEntity
+import com.example.composenavdemo.data.database.StationWithAqi
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,6 +16,14 @@ class AirQualityRepository(
     private val stationDao: MonitoringStationDao,
     private val measurementDao: AirQualityMeasurementDao
 ) {
+
+    /**
+     * Obtiene un Flow con la lista de todas las estaciones y su última medición de AQI.
+     * Esta es la función que usará el ViewModel para la pantalla de la lista.
+     */
+    fun getStationsWithAqi(): Flow<List<StationWithAqi>> {
+        return stationDao.getStationsWithLatestAqi()
+    }
 
     /**
      * Obtiene un Flow con la lista de todas las estaciones de monitoreo.

@@ -41,7 +41,8 @@ fun AirSenseNavGraph(navController: NavHostController) {
                 onNavigateToStationsList = { navController.navigate(AirSenseScreen.StationsList.route) },
                 onStationClick = { stationId ->
                     navController.navigate(AirSenseScreen.StationDetails.createRoute(stationId))
-                }
+                },
+                onNavigateToSettings = { navController.navigate(AirSenseScreen.Settings.route) }
             )
         }
         composable(AirSenseScreen.StationsList.route) {
@@ -76,6 +77,13 @@ fun AirSenseNavGraph(navController: NavHostController) {
             )
             AddStationScreen(
                 viewModel = addStationViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(AirSenseScreen.Settings.route) {
+            val preferencesManager = application.container.preferencesManager
+            SettingsScreen(
+                preferencesManager = preferencesManager,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

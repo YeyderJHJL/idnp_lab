@@ -2,26 +2,25 @@ package com.example.composenavdemo.di
 
 import android.content.Context
 import com.example.composenavdemo.data.database.AirQualityDatabase
+import com.example.composenavdemo.data.preferences.PreferencesManager
 import com.example.composenavdemo.data.repository.AirQualityRepository
 
-/**
- * Contenedor de dependencias para la aplicación, sigue el patrón de Inyección de Dependencias manual.
- */
+// El contrato que define lo que ofrece el contenedor
 interface AppContainer {
     val airQualityRepository: AirQualityRepository
+    val preferencesManager: PreferencesManager
 }
 
-/**
- * Implementación por defecto del contenedor de dependencias.
- */
+// La implementación real que construye las dependencias
 class DefaultAppContainer(private val context: Context) : AppContainer {
 
-    // La instancia del repositorio se crea de forma perezosa (lazy) la primera vez que se necesita.
+    // El repositorio que ya existía
     override val airQualityRepository: AirQualityRepository by lazy {
-        val database = AirQualityDatabase.getDatabase(context)
-        AirQualityRepository(
-            stationDao = database.monitoringStationDao(),
-            measurementDao = database.airQualityMeasurementDao()
-        )
+        AirQualityRepository(AirQualityDatabase.getDatabase(context).monitoringStationDao(), AirQualityDatabase.getDatabase(context).airQualityMeasurementDao())
+    }
+
+    // El gestor de preferencias que faltaba
+    override val preferencesManager: PreferencesManager by lazy {
+        PreferencesManager(context)
     }
 }
